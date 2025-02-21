@@ -31,3 +31,9 @@ RUN npx tsc
 
 # Run the server with nodemon to enable auto-reloading
 CMD ["npx", "nodemon", "dist/server.js"]
+
+# Agregar permisos de ejecución al script
+RUN chmod +x /backend/entrypoint.sh
+
+# Usar el script de entrada para cargar las variables y ejecutar nodemon
+CMD ["/backend/entrypoint.sh"]
