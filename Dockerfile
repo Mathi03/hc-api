@@ -18,22 +18,19 @@ COPY package*.json ./
 RUN npm cache clean --force
 
 # Install the project dependencies
-RUN npm install
+RUN npm install --omit=dev
 
-# Install TypeScript and nodemon globally
-RUN npm install -g typescript nodemon
+# Install TypeScript globally
+RUN npm install -g typescript
 
 # Copy the entire application code
 COPY . .
 
-# Compile TypeScript before running with nodemon
+# Compile TypeScript
 RUN npx tsc
 
-# Run the server with nodemon to enable auto-reloading
-CMD ["npx", "nodemon", "dist/server.js"]
+# Expose the application port
+EXPOSE 8080
 
-# Agregar permisos de ejecución al script
-RUN chmod +x /backend/entrypoint.sh
-
-# Usar el script de entrada para cargar las variables y ejecutar nodemon
-CMD ["/backend/entrypoint.sh"]
+# Start the application in production mode
+CMD ["node", "dist/server.js"]
