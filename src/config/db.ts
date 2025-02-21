@@ -1,17 +1,24 @@
 import { Pool } from "pg";
 import dotenv from "dotenv";
+import { parse } from "pg-connection-string";
 
 dotenv.config();
 
+const dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  throw new Error("DATABASE_URL is not defined in environment variables");
+}
+
+const config = parse(dbUrl);
+
 const pool = new Pool({
-  user: process.env.DATABASE_USER,
-  host: process.env.DATABASE_HOST,
-  database: process.env.DATABASE_NAME,
-  password: process.env.DATABASE_PASSWORD,
-  port: Number(process.env.DATABASE_PORT),
-  ssl: {
-    rejectUnauthorized: false, // Railway requiere SSL en la conexión a PostgreSQL
-  },
+  user: config.user,
+  host: config.host ?? undefined,
+  database: config.database ?? undefined,
+  password: config.password,
+  port: Number(config.port),
+  ssl: { rejectUnauthorized: false }, // Railway requiere SSL
 });
 
 export default pool;
