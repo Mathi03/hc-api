@@ -6,6 +6,7 @@ dotenv.config();
 
 const dbUrl = process.env.DATABASE_URL;
 
+console.log("ENV VARIABLES:", process.env);
 if (!dbUrl) {
   throw new Error("DATABASE_URL is not defined in environment variables");
 }
