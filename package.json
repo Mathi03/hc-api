@@ -19,7 +19,6 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
-    "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.3",
     "uuid": "^11.0.5"
@@ -29,7 +28,6 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "@types/express-validator": "^3.0.2",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^22.13.4",
     "@types/pg": "^8.11.11",
