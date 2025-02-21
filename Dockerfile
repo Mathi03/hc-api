@@ -1,36 +1,30 @@
-# Use a base Node.js image
+# Usar una imagen base de Node.js
 FROM node:18-alpine
 
-# Set the timezone to CST
+# Establecer zona horaria
 ENV TZ=America/Chicago
 
-# Install tzdata to ensure timezone setting works
 RUN apk add --no-cache tzdata && \
     cp /usr/share/zoneinfo/America/Chicago /etc/localtime && \
     echo "America/Chicago" > /etc/timezone
-    
-# Set the working directory inside the container
+ 
+# Definir el directorio de trabajo
 WORKDIR /backend
 
-# Copy the configuration and dependency files
-COPY package*.json ./
+# Copiar archivos de configuración antes del código
+COPY package*.json tsconfig.json ./
 
-RUN npm cache clean --force
+# Instalar todas las dependencias (incluyendo devDependencies)
+RUN npm install
 
-# Install the project dependencies
-RUN npm install --omit=dev
-
-# Install TypeScript globally
-RUN npm install -g typescript
-
-# Copy the entire application code
+# Copiar el resto del código fuente
 COPY . .
 
-# Compile TypeScript
+# Compilar TypeScript
 RUN npx tsc
 
-# Expose the application port
+# Exponer el puerto
 EXPOSE 8080
 
-# Start the application in production mode
+# Iniciar la aplicación
 CMD ["node", "dist/server.js"]
