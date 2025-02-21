@@ -9,6 +9,9 @@ const pool = new Pool({
   database: process.env.DATABASE_NAME,
   password: process.env.DATABASE_PASSWORD,
   port: Number(process.env.DATABASE_PORT),
+  ssl: {
+    rejectUnauthorized: false, // Railway requiere SSL en la conexión a PostgreSQL
+  },
 });
 
 export default pool;
