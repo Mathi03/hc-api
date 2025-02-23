@@ -6,12 +6,12 @@ dotenv.config();
 
 const dbUrl = process.env.DATABASE_URL;
 
-console.log("ENV VARIABLES:", process.env);
 if (!dbUrl) {
   throw new Error("DATABASE_URL is not defined in environment variables");
 }
 
 const config = parse(dbUrl);
+console.log("ENV VARIABLES:", config);
 
 const pool = new Pool({
   user: config.user,
@@ -19,7 +19,10 @@ const pool = new Pool({
   database: config.database ?? undefined,
   password: config.password,
   port: Number(config.port),
-  ssl: { rejectUnauthorized: false }, // Railway requiere SSL
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false,
 });
 
 export default pool;
