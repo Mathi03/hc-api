@@ -24,7 +24,7 @@ export class DoctorModel {
     try {
       await pool.query("BEGIN");
       const userQuery = `INSERT INTO users (name, lastname, identifier, dob, email, sex, username, password, phone, city, country, role, tyc) 
-                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'patient', $12) RETURNING id`;
+                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'doctor', $12) RETURNING id`;
       const values = [
         data.name,
         data.lastname,
@@ -48,37 +48,44 @@ export class DoctorModel {
     }
   }
   static async createDoctor(data: CreateDoctorDto, userId: number) {
-    const { rows } = await pool.query(
-      "INSERT INTO doctors (name, lastname, phone, email, user_id, specialty_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [
-        data.name,
-        data.lastname,
-        data.phone,
-        data.email,
-        userId,
-        data.specialty_id,
-      ],
-    );
-    return rows[0];
+    try {
+      const { rows } = await pool.query(
+        "INSERT INTO doctors (name, lastname, phone, email, user_id, specialty_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        [
+          data.name,
+          data.lastname,
+          data.phone,
+          data.email,
+          userId,
+          data.specialty_id,
+        ],
+      );
+      await pool.query("COMMIT");
+
+      return rows[0];
+    } catch (error) {
+      await pool.query("ROLLBACK");
+      throw error;
+    }
   }
 
   static async update(
     id: number,
-    firstName: string,
+    name: string,
     lastName: string,
     phone: string,
     email: string,
     specialtyId: number,
   ) {
     const { rows } = await pool.query(
-      "UPDATE doctors SET first_name = $1, last_name = $2, phone = $3, email = $4, specialty_id = $5 WHERE id = $6 RETURNING *",
-      [firstName, lastName, phone, email, specialtyId, id],
+      "UPDATE doctors SET name = $1, lastname = $2, phone = $3, email = $4, specialty_id = $5 WHERE id = $6 RETURNING *",
+      [name, lastName, phone, email, specialtyId, id],
     );
     return rows[0];
   }
 
   static async delete(id: number) {
     await pool.query("DELETE FROM doctors WHERE id = $1", [id]);
-    return { message: "Doctor deleted successfully" };
+    return "Doctor deleted successfully";
   }
 }

@@ -18,6 +18,6 @@ export class SpecialtyService {
   }
 
   static async delete(id: number) {
-    await SpecialtyModel.delete(id);
+    return await SpecialtyModel.delete(id);
   }
 }

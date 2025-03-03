@@ -3,8 +3,8 @@ import { CreateDoctorDto } from "../dtos/CreateDoctorDto";
 import { DoctorModel } from "../models/DoctorModel";
 
 export class DoctorService {
-  static async getAll(withDetail: boolean) {
-    return await DoctorModel.getAll(withDetail);
+  static async getAll(withDetail: boolean, specialtyId: number) {
+    return await DoctorModel.getAll(withDetail, specialtyId);
   }
 
   static async getById(id: number) {
@@ -18,7 +18,7 @@ export class DoctorService {
 
   static async update(
     id: number,
-    firstName: string,
+    name: string,
     lastName: string,
     phone: string,
     email: string,
@@ -26,7 +26,7 @@ export class DoctorService {
   ) {
     return await DoctorModel.update(
       id,
-      firstName,
+      name,
       lastName,
       phone,
       email,
@@ -35,6 +35,6 @@ export class DoctorService {
   }
 
   static async delete(id: number) {
-    await DoctorModel.delete(id);
+    return await DoctorModel.delete(id);
   }
 }

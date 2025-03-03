@@ -8,7 +8,11 @@ export class DoctorController {
   static async getAll(req: Request, res: Response) {
     try {
       const withDetail = req.query.withdetail === "true";
-      const doctors = await DoctorService.getAll(withDetail);
+      const specialtyId = req.query.specialtyId;
+      const doctors = await DoctorService.getAll(
+        withDetail,
+        Number(specialtyId),
+      );
       res.status(200).json({ success: true, data: doctors });
     } catch (err) {
       handleError(res, err);
@@ -32,10 +36,7 @@ export class DoctorController {
       const validationResult = createUserDto.validateRegistrationForm();
 
       if (!validationResult.isValid) {
-        res.status(400).json({
-          success: false,
-          message: validationResult.errors,
-        });
+        throw new Error(validationResult.errors[0]);
       } else {
         const hashedPassword = await bcrypt.hash(createUserDto.password!, 10);
         createUserDto.password = hashedPassword;
@@ -50,11 +51,11 @@ export class DoctorController {
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { firstName, lastName, phone, email, specialtyId } = req.body;
+      const { name, lastname, phone, email, specialtyId } = req.body;
       const updated = await DoctorService.update(
         Number(id),
-        firstName,
-        lastName,
+        name,
+        lastname,
         phone,
         email,
         specialtyId,
@@ -69,7 +70,7 @@ export class DoctorController {
     try {
       const { id } = req.params;
       const message = await DoctorService.delete(Number(id));
-      res.status(204).json({ success: true, message });
+      res.status(200).json({ success: true, message });
     } catch (err) {
       handleError(res, err);
     }

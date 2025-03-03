@@ -14,8 +14,8 @@ export class SpecialtyController {
 
   static async create(req: Request, res: Response) {
     try {
-      const { name, label, hourlyRate } = req.body;
-      const specialty = await SpecialtyService.create(name, label, hourlyRate);
+      const { name, label, hourly_rate } = req.body;
+      const specialty = await SpecialtyService.create(name, label, hourly_rate);
       res.status(201).json({ success: true, data: specialty });
     } catch (err) {
       handleError(res, err);
@@ -25,8 +25,8 @@ export class SpecialtyController {
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { name, label, hourlyRate } = req.body;
-      const updated = await SpecialtyService.update(Number(id), name, label, hourlyRate);
+      const { name, label, hourly_rate } = req.body;
+      const updated = await SpecialtyService.update(Number(id), name, label, hourly_rate);
       res.status(200).json({ success: true, data: updated });
     } catch (err) {
       handleError(res, err);
@@ -37,7 +37,7 @@ export class SpecialtyController {
     try {
       const { id } = req.params;
       const message = await SpecialtyService.delete(Number(id));
-      res.status(204).json({ success: true, message });
+      res.status(200).json({ success: true, message });
     } catch (err) {
       handleError(res, err);
     }
