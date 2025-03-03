@@ -2,7 +2,7 @@ import { AppointmentDTO } from "../dtos/AppointmentDTO";
 import { AppointmentModel } from "../models/AppointmentModel";
 
 export class AppointmentService {
-  static async create(appointmentData: any) {
+  static async create(appointmentData: any, isPatient: boolean) {
     const appointmentDTO = new AppointmentDTO(appointmentData);
     const validation = appointmentDTO.validate();
 
@@ -10,7 +10,11 @@ export class AppointmentService {
       throw new Error(validation.errors.join(", "));
     }
 
-    return await AppointmentModel.create(appointmentDTO);
+    if (isPatient) {
+      return await AppointmentModel.createByUser(appointmentDTO);
+    } else {
+      return await AppointmentModel.create(appointmentDTO);
+    }
   }
 
   static async getAll() {

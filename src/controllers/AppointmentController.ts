@@ -23,12 +23,24 @@ class AppointmentController {
     try {
       const appointmentDto = new AppointmentDTO(req.body);
       const validationResult = appointmentDto.validate();
+      const role = req.currentUser!.role;
 
       if (!validationResult.isValid) {
         throw new Error(validationResult.errors[0]);
       }
-      const appointment = await AppointmentService.create(appointmentDto);
-      res.status(201).json({ success: true, data: appointment });
+      if (role === "patient") {
+        const appointment = await AppointmentService.create(
+          appointmentDto,
+          true,
+        );
+        res.status(201).json({ success: true, data: appointment });
+      } else {
+        const appointment = await AppointmentService.create(
+          appointmentDto,
+          false,
+        );
+        res.status(201).json({ success: true, data: appointment });
+      }
     } catch (err) {
       handleError(res, err);
     }

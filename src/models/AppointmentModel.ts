@@ -5,8 +5,8 @@ export class AppointmentModel {
   static async getByUser(userId: number, role: string) {
     const query =
       role === "doctor"
-        ? "SELECT * FROM appointments WHERE doctor_id = $1"
-        : "SELECT * FROM appointments WHERE patient_id = $1";
+        ? "SELECT a.* FROM appointments a LEFT JOIN doctors p ON p.id = a.patient_id WHERE p.user_id = $1"
+        : "SELECT a.* FROM appointments a LEFT JOIN patients p ON p.id = a.patient_id WHERE p.user_id = $1";
     const { rows } = await pool.query(query, [userId]);
     return rows;
   }
@@ -15,6 +15,21 @@ export class AppointmentModel {
     const { rows } = await pool.query(
       `INSERT INTO appointments (patient_id, doctor_id, appointment_date, start_time, end_time) 
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [
+        data.patientId,
+        data.doctorId,
+        data.appointmentDate,
+        data.startTime,
+        data.endTime,
+      ],
+    );
+    return rows[0];
+  }
+
+  static async createByUser(data: AppointmentDTO) {
+    const { rows } = await pool.query(
+      `INSERT INTO appointments (patient_id, doctor_id, appointment_date, start_time, end_time) 
+       VALUES ((SELECT id FROM patients WHERE user_id = $1 LIMIT 1), $2, $3, $4, $5) RETURNING *`,
       [
         data.patientId,
         data.doctorId,
