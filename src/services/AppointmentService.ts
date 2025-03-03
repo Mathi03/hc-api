@@ -1,8 +1,8 @@
-import AppointmentModel from "../models/AppointmentModel";
 import { AppointmentDTO } from "../dtos/AppointmentDTO";
+import { AppointmentModel } from "../models/AppointmentModel";
 
-class AppointmentService {
-  async create(appointmentData: any) {
+export class AppointmentService {
+  static async create(appointmentData: any) {
     const appointmentDTO = new AppointmentDTO(appointmentData);
     const validation = appointmentDTO.validate();
 
@@ -13,23 +13,29 @@ class AppointmentService {
     return await AppointmentModel.create(appointmentDTO);
   }
 
-  async getAll() {
+  static async getAll() {
     return await AppointmentModel.getAll();
   }
 
-  async getById(id: number) {
+  static async getById(id: number) {
     const appointment = await AppointmentModel.getById(id);
     if (!appointment) throw new Error("Appointment not found");
     return appointment;
   }
 
-  async update(id: number, appointmentData: any) {
-    return await AppointmentModel.update(id, appointmentData);
+  static async getByUser(userId: number, role: string) {
+    return await AppointmentModel.getByUser(userId, role);
   }
 
-  async delete(id: number) {
-    return await AppointmentModel.delete(id);
+  // async update(id: number, appointmentData: any) {
+  //   return await AppointmentModel.update(id, appointmentData);
+  // }
+
+  static async cancel(appointmentId: number) {
+    return await AppointmentModel.cancel(appointmentId);
+  }
+
+  static async delete(appointmentId: number) {
+    await AppointmentModel.delete(appointmentId);
   }
 }
-
-export default new AppointmentService();

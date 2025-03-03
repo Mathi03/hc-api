@@ -7,4 +7,5 @@ export interface GetUserDto {
   email: string;
   password: string;
   created_at: string;
+  role: string;
 }

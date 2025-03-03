@@ -1,18 +1,48 @@
 import { Request, Response } from "express";
-import AppointmentService from "../services/AppointmentService";
 import { handleError } from "../utils/errorHandler";
+import { AppointmentService } from "../services/AppointmentService";
+import { AppointmentDTO } from "../dtos/AppointmentDTO";
 
 class AppointmentController {
+  async getByUser(req: Request, res: Response) {
+    try {
+      const userId = req.currentUser!.id;
+      const role = req.currentUser!.role;
+      if (role === "admin") {
+        const appointments = await AppointmentService.getAll();
+        res.status(200).json({ success: true, data: appointments });
+      } else {
+        const appointments = await AppointmentService.getByUser(userId, role);
+        res.status(200).json({ success: true, data: appointments });
+      }
+    } catch (err) {
+      handleError(res, err);
+    }
+  }
   async create(req: Request, res: Response) {
     try {
-      const appointment = await AppointmentService.create(req.body);
+      const appointmentDto = new AppointmentDTO(req.body);
+      const validationResult = appointmentDto.validate();
+
+      if (!validationResult.isValid) {
+        throw new Error(validationResult.errors[0]);
+      }
+      const appointment = await AppointmentService.create(appointmentDto);
       res.status(201).json({ success: true, data: appointment });
     } catch (err) {
       handleError(res, err);
     }
   }
+  // async create(req: Request, res: Response) {
+  //   try {
+  //     const appointment = await AppointmentService.create(req.body);
+  //     res.status(201).json({ success: true, data: appointment });
+  //   } catch (err) {
+  //     handleError(res, err);
+  //   }
+  // }
 
-  async getAll(req: Request, res: Response) {
+  async getAll(_req: Request, res: Response) {
     try {
       const appointments = await AppointmentService.getAll();
       res.status(200).json({ success: true, data: appointments });
@@ -23,17 +53,29 @@ class AppointmentController {
 
   async getById(req: Request, res: Response) {
     try {
-      const appointment = await AppointmentService.getById(Number(req.params.id));
+      const appointment = await AppointmentService.getById(
+        Number(req.params.id),
+      );
       res.status(200).json({ success: true, data: appointment });
     } catch (err) {
       handleError(res, err);
     }
   }
 
-  async update(req: Request, res: Response) {
+  // async update(req: Request, res: Response) {
+  //   try {
+  //     const updatedAppointment = await AppointmentService.update(Number(req.params.id), req.body);
+  //     res.status(200).json({ success: true, data: updatedAppointment });
+  //   } catch (err) {
+  //     handleError(res, err);
+  //   }
+  // }
+
+  async cancel(req: Request, res: Response) {
     try {
-      const updatedAppointment = await AppointmentService.update(Number(req.params.id), req.body);
-      res.status(200).json({ success: true, data: updatedAppointment });
+      const { id } = req.params;
+      const canceledAppointment = await AppointmentService.cancel(Number(id));
+      res.status(200).json({ success: true, data: canceledAppointment });
     } catch (err) {
       handleError(res, err);
     }
@@ -41,8 +83,9 @@ class AppointmentController {
 
   async delete(req: Request, res: Response) {
     try {
-      const message = await AppointmentService.delete(Number(req.params.id));
-      res.status(200).json({ success: true, message });
+      const { id } = req.params;
+      const message = await AppointmentService.delete(Number(id));
+      res.status(204).json({ success: true, message });
     } catch (err) {
       handleError(res, err);
     }

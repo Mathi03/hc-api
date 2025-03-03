@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import AuthService from "../services/AuthService";
-import { AuthDTO } from "../dtos/AuthDTO";
+import { LoginDTO } from "../dtos/LoginDTO";
 import { handleError } from "../utils/errorHandler";
 import { CreateUserDto } from "../dtos/CreateUserDto";
 import bcrypt from "bcrypt";
@@ -30,7 +30,7 @@ class AuthController {
     }
   }
   async login(req: Request, res: Response) {
-    const user: AuthDTO = req.body;
+    const user: LoginDTO = req.body;
 
     if (!user) {
       res.status(400).json({ message: "Username y password requeridos." });

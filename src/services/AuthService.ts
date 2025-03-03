@@ -1,47 +1,61 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pool from "../config/db";
-import { AuthDTO } from "../dtos/AuthDTO";
+import { LoginDTO } from "../dtos/LoginDTO";
 import { CreateUserDto } from "../dtos/CreateUserDto";
 import { getUserByUsername, User } from "../models/userModel";
 
 class AuthService {
   async signup(userDto: CreateUserDto) {
-    const user: User = userDto.toModel();
-    const query = `
-    INSERT INTO users (name, lastname, identifier, dob, email, sex, username, password, phone, city, tyc,  country)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *;
-  `;
-    const values = [
-      user.name,
-      user.lastname,
-      user.identifier,
-      user.dob,
-      user.email,
-      user.sex,
-      user.username.toLowerCase(),
-      user.password,
-      // user.sponsor,
-      // user.closer,
-      user.phone,
-      user.city,
-      // user.zipcode,
-      user.tyc,
-      // user.is_admin,
-      // user.kitId,
-      // user.drop,
-      // user.ia,
-      // user.impact,
-      // user.trading,
-      user.country,
-    ];
+    const userData: User = userDto.toModel();
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const userQuery = `INSERT INTO users (name, lastname, identifier, dob, email, sex, username, password, phone, city, country, role, tyc) 
+                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'patient', $12) RETURNING *`;
+      const values = [
+        userData.name,
+        userData.lastname,
+        userData.identifier,
+        userData.dob,
+        userData.email,
+        userData.sex,
+        userData.username.toLowerCase(),
+        userData.password,
+        userData.phone,
+        userData.city,
+        userData.country,
+        userData.tyc,
+      ];
+      const userResult = await client.query(userQuery, values);
+      const user = userResult.rows[0];
 
-    const result = await pool.query(query, values);
-    const newUser: User = (await result.rows[0]) as User;
-    return { success: true, data: { user: newUser } };
+      const patientQuery = `INSERT INTO patients (name, lastname, dob, gender, phone, email, user_id) 
+                            VALUES ($1, $2, $3, $4, $5, $6, $7)`;
+      const patientValues = [
+        user.name,
+        user.lastname,
+        user.dob,
+        user.sex,
+        user.phone,
+        user.email,
+        user.id,
+      ];
+      await client.query(patientQuery, patientValues);
+
+      await client.query("COMMIT");
+      // const result = await pool.query(query, values);
+      // const newUser: User = (await result.rows[0]) as User;
+      return { success: true, data: { user } };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
-  async signin(authDto: AuthDTO) {
+  async signin(authDto: LoginDTO) {
     const { username, password } = authDto;
 
     const user = await getUserByUsername(username);
@@ -66,10 +80,8 @@ class AuthService {
           username: user.username,
           email: user.email,
           password: user.password,
-          // status: user.status,
-          // is_admin: user.is_admin,
-          // kit_id: user.kit_id,
           created_at: user.created_at,
+          role: user.role,
         },
         process.env.JWT_SECRET as string,
         { expiresIn: "1h" },

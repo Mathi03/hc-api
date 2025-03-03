@@ -1,50 +1,69 @@
 import pool from "../config/db";
+import { AppointmentDTO } from "../dtos/AppointmentDTO";
 
-class AppointmentModel {
-  async create(appointment: any) {
-    const query = `
-      INSERT INTO appointments (patient_id, doctor_id, date_time, status)
-      VALUES ($1, $2, $3, $4) RETURNING *`;
-    const values = [
-      appointment.patientId,
-      appointment.doctorId,
-      appointment.dateTime,
-      appointment.status,
-    ];
-
-    const result = await pool.query(query, values);
-    return result.rows[0];
+export class AppointmentModel {
+  static async getByUser(userId: number, role: string) {
+    const query =
+      role === "doctor"
+        ? "SELECT * FROM appointments WHERE doctor_id = $1"
+        : "SELECT * FROM appointments WHERE patient_id = $1";
+    const { rows } = await pool.query(query, [userId]);
+    return rows;
   }
 
-  async getAll() {
+  static async create(data: AppointmentDTO) {
+    const { rows } = await pool.query(
+      `INSERT INTO appointments (patient_id, doctor_id, appointment_date, start_time, end_time) 
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [
+        data.patientId,
+        data.doctorId,
+        data.appointmentDate,
+        data.startTime,
+        data.endTime,
+      ],
+    );
+    return rows[0];
+  }
+
+  static async getAll() {
     const result = await pool.query("SELECT * FROM appointments");
     return result.rows;
   }
 
-  async getById(id: number) {
-    const result = await pool.query("SELECT * FROM appointments WHERE id = $1", [id]);
+  static async getById(id: number) {
+    const result = await pool.query(
+      "SELECT * FROM appointments WHERE id = $1",
+      [id],
+    );
     return result.rows[0];
   }
 
-  async update(id: number, appointment: any) {
-    const query = `
-      UPDATE appointments SET patient_id=$1, doctor_id=$2, date_time=$3, status=$4
-      WHERE id=$5 RETURNING *`;
-    const values = [
-      appointment.patientId,
-      appointment.doctorId,
-      appointment.dateTime,
-      appointment.status,
-      id,
-    ];
-    const result = await pool.query(query, values);
-    return result.rows[0];
+  // async update(id: number, appointment: any) {
+  //   const query = `
+  //     UPDATE appointments SET patient_id=$1, doctor_id=$2, date_time=$3, status=$4
+  //     WHERE id=$5 RETURNING *`;
+  //   const values = [
+  //     appointment.patientId,
+  //     appointment.doctorId,
+  //     appointment.dateTime,
+  //     appointment.status,
+  //     id,
+  //   ];
+  //   const result = await pool.query(query, values);
+  //   return result.rows[0];
+  // }
+
+  static async cancel(appointmentId: number) {
+    const { rows } = await pool.query(
+      "UPDATE appointments SET status = 'canceled' WHERE id = $1 RETURNING *",
+      [appointmentId],
+    );
+    return rows[0];
   }
 
-  async delete(id: number) {
-    await pool.query("DELETE FROM appointments WHERE id = $1", [id]);
+  static async delete(appointmentId: number) {
+    await pool.query("DELETE FROM appointments WHERE id = $1", [appointmentId]);
     return { message: "Appointment deleted successfully" };
   }
 }
-
-export default new AppointmentModel();

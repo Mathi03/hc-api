@@ -23,3 +23,10 @@ export const authMiddleware = (
     res.status(403).json({ message: "Invalid token" });
   }
 };
+
+export const verifyAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.currentUser || req.currentUser.role !== "admin") {
+    return res.status(403).json({ message: "Forbidden: Admins only" });
+  }
+  next();
+};

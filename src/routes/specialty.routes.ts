@@ -1,45 +1,38 @@
-import { Router } from "express";
-import { DoctorController } from "../controllers/DoctorController";
+import express from "express";
+import { SpecialtyController } from "../controllers/SpecialtyController";
+import { authLimiter } from "../utils/requestLimiter";
 import { authMiddleware } from "../middleware/auth";
 import { roleMiddleware } from "../middleware/roleMiddleware";
-import { authLimiter } from "../utils/requestLimiter";
 
-const router = Router();
+const router = express.Router();
 
 router.get(
   "/",
   authMiddleware,
   authLimiter,
-  roleMiddleware(["patient", "admin"]),
-  DoctorController.getAll,
-);
-router.get(
-  "/:id",
-  authMiddleware,
-  authLimiter,
-  roleMiddleware(["admin"]),
-  DoctorController.getById,
+  roleMiddleware(["doctor", "admin"]),
+  SpecialtyController.getAll,
 );
 router.post(
   "/",
   authMiddleware,
   authLimiter,
   roleMiddleware(["admin"]),
-  DoctorController.create,
+  SpecialtyController.create,
 );
 router.put(
   "/:id",
   authMiddleware,
   authLimiter,
   roleMiddleware(["admin"]),
-  DoctorController.update,
+  SpecialtyController.update,
 );
 router.delete(
   "/:id",
   authMiddleware,
   authLimiter,
   roleMiddleware(["admin"]),
-  DoctorController.delete,
+  SpecialtyController.delete,
 );
 
 export default router;

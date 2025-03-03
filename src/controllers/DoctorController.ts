@@ -1,52 +1,77 @@
 import { Request, Response } from "express";
-import DoctorService from "../services/DoctorService";
 import { handleError } from "../utils/errorHandler";
+import { DoctorService } from "../services/DoctorService";
+import bcrypt from "bcrypt";
+import { CreateDoctorDto } from "../dtos/CreateDoctorDto";
 
-class DoctorController {
-  async create(req: Request, res: Response) {
+export class DoctorController {
+  static async getAll(req: Request, res: Response) {
     try {
-      const doctor = await DoctorService.create(req.body);
-      res.status(201).json({ success: true, data: doctor });
-    } catch (err) {
-      handleError(res, err);
-    }
-  }
-
-  async getAll(req: Request, res: Response) {
-    try {
-      const doctors = await DoctorService.getAll();
+      const withDetail = req.query.withdetail === "true";
+      const doctors = await DoctorService.getAll(withDetail);
       res.status(200).json({ success: true, data: doctors });
     } catch (err) {
       handleError(res, err);
     }
   }
 
-  async getById(req: Request, res: Response) {
+  static async getById(req: Request, res: Response) {
     try {
-      const doctor = await DoctorService.getById(Number(req.params.id));
+      const { id } = req.params;
+      const doctor = await DoctorService.getById(Number(id));
       res.status(200).json({ success: true, data: doctor });
     } catch (err) {
       handleError(res, err);
     }
   }
 
-  async update(req: Request, res: Response) {
+  static async create(req: Request, res: Response) {
     try {
-      const updatedDoctor = await DoctorService.update(Number(req.params.id), req.body);
-      res.status(200).json({ success: true, data: updatedDoctor });
+      const createUserDto = new CreateDoctorDto(req.body);
+
+      const validationResult = createUserDto.validateRegistrationForm();
+
+      if (!validationResult.isValid) {
+        res.status(400).json({
+          success: false,
+          message: validationResult.errors,
+        });
+      } else {
+        const hashedPassword = await bcrypt.hash(createUserDto.password!, 10);
+        createUserDto.password = hashedPassword;
+        const doctor = await DoctorService.create(createUserDto);
+        res.status(201).json({ success: true, data: doctor });
+      }
     } catch (err) {
       handleError(res, err);
     }
   }
 
-  async delete(req: Request, res: Response) {
+  static async update(req: Request, res: Response) {
     try {
-      const message = await DoctorService.delete(Number(req.params.id));
-      res.status(200).json({ success: true, message });
+      const { id } = req.params;
+      const { firstName, lastName, phone, email, specialtyId } = req.body;
+      const updated = await DoctorService.update(
+        Number(id),
+        firstName,
+        lastName,
+        phone,
+        email,
+        specialtyId,
+      );
+      res.status(200).json({ success: true, data: updated });
+    } catch (err) {
+      handleError(res, err);
+    }
+  }
+
+  static async delete(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const message = await DoctorService.delete(Number(id));
+      res.status(204).json({ success: true, message });
     } catch (err) {
       handleError(res, err);
     }
   }
 }
-
-export default new DoctorController();

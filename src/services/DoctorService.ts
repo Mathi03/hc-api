@@ -1,35 +1,40 @@
-import DoctorModel from "../models/DoctorModel";
-import { DoctorDTO } from "../dtos/DoctorDTO";
+// src/services/DoctorService.ts
+import { CreateDoctorDto } from "../dtos/CreateDoctorDto";
+import { DoctorModel } from "../models/DoctorModel";
 
-class DoctorService {
-  async create(doctorData: any) {
-    const doctorDTO = new DoctorDTO(doctorData);
-    const validation = doctorDTO.validate();
-
-    if (!validation.isValid) {
-      throw new Error(validation.errors.join(", "));
-    }
-
-    return await DoctorModel.create(doctorDTO);
+export class DoctorService {
+  static async getAll(withDetail: boolean) {
+    return await DoctorModel.getAll(withDetail);
   }
 
-  async getAll() {
-    return await DoctorModel.getAll();
+  static async getById(id: number) {
+    return await DoctorModel.getById(id);
   }
 
-  async getById(id: number) {
-    const doctor = await DoctorModel.getById(id);
-    if (!doctor) throw new Error("Doctor not found");
-    return doctor;
+  static async create(doctorDTO: CreateDoctorDto) {
+    const userId = await DoctorModel.createUser(doctorDTO);
+    return await DoctorModel.createDoctor(doctorDTO, userId);
   }
 
-  async update(id: number, doctorData: any) {
-    return await DoctorModel.update(id, doctorData);
+  static async update(
+    id: number,
+    firstName: string,
+    lastName: string,
+    phone: string,
+    email: string,
+    specialtyId: number,
+  ) {
+    return await DoctorModel.update(
+      id,
+      firstName,
+      lastName,
+      phone,
+      email,
+      specialtyId,
+    );
   }
 
-  async delete(id: number) {
-    return await DoctorModel.delete(id);
+  static async delete(id: number) {
+    await DoctorModel.delete(id);
   }
 }
-
-export default new DoctorService();
