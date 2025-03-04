@@ -31,9 +31,9 @@ export class AppointmentService {
     return await AppointmentModel.getByUser(userId, role);
   }
 
-  // async update(id: number, appointmentData: any) {
-  //   return await AppointmentModel.update(id, appointmentData);
-  // }
+  static async update(id: number, appointmentData: any) {
+    return await AppointmentModel.update(id, appointmentData);
+  }
 
   static async cancel(appointmentId: number) {
     return await AppointmentModel.cancel(appointmentId);

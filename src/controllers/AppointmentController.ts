@@ -74,14 +74,17 @@ class AppointmentController {
     }
   }
 
-  // async update(req: Request, res: Response) {
-  //   try {
-  //     const updatedAppointment = await AppointmentService.update(Number(req.params.id), req.body);
-  //     res.status(200).json({ success: true, data: updatedAppointment });
-  //   } catch (err) {
-  //     handleError(res, err);
-  //   }
-  // }
+  async update(req: Request, res: Response) {
+    try {
+      const updatedAppointment = await AppointmentService.update(
+        Number(req.params.id),
+        req.body,
+      );
+      res.status(200).json({ success: true, data: updatedAppointment });
+    } catch (err) {
+      handleError(res, err);
+    }
+  }
 
   async cancel(req: Request, res: Response) {
     try {

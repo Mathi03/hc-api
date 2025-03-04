@@ -42,7 +42,9 @@ export class AppointmentModel {
   }
 
   static async getAll() {
-    const result = await pool.query("SELECT a.*, p.name AS patient_name, p.lastname AS patient_lastname, CONCAT(p.name || ' ' ||p.lastname) AS patient_fullname, d.name AS doctor_name, d.lastname AS doctor_lastname, CONCAT(d.name || ' ' ||d.lastname) AS doctor_fullname, ROUND(s.hourly_rate * (EXTRACT(EPOCH FROM (a.end_time - a.start_time)) / 3600), 2) AS appointment_price FROM appointments a LEFT JOIN patients p ON p.id = a.patient_id LEFT JOIN doctors d ON d.id = a.doctor_id LEFT JOIN specialties s ON s.id = d.specialty_id");
+    const result = await pool.query(
+      "SELECT a.*, p.name AS patient_name, p.lastname AS patient_lastname, CONCAT(p.name || ' ' ||p.lastname) AS patient_fullname, d.name AS doctor_name, d.lastname AS doctor_lastname, CONCAT(d.name || ' ' ||d.lastname) AS doctor_fullname, ROUND(s.hourly_rate * (EXTRACT(EPOCH FROM (a.end_time - a.start_time)) / 3600), 2) AS appointment_price FROM appointments a LEFT JOIN patients p ON p.id = a.patient_id LEFT JOIN doctors d ON d.id = a.doctor_id LEFT JOIN specialties s ON s.id = d.specialty_id",
+    );
     return result.rows;
   }
 
@@ -54,20 +56,20 @@ export class AppointmentModel {
     return result.rows[0];
   }
 
-  // async update(id: number, appointment: any) {
-  //   const query = `
-  //     UPDATE appointments SET patient_id=$1, doctor_id=$2, date_time=$3, status=$4
-  //     WHERE id=$5 RETURNING *`;
-  //   const values = [
-  //     appointment.patientId,
-  //     appointment.doctorId,
-  //     appointment.dateTime,
-  //     appointment.status,
-  //     id,
-  //   ];
-  //   const result = await pool.query(query, values);
-  //   return result.rows[0];
-  // }
+  static async update(id: number, appointment: any) {
+    const query = `
+      UPDATE appointments SET patient_id=$1, doctor_id=$2, appointment_date=$3, start_time=$4, end_time=$5 WHERE id=$6 RETURNING *`;
+    const values = [
+      appointment.patient_id,
+      appointment.doctor_id,
+      appointment.appointment_date,
+      appointment.start_time,
+      appointment.end_time,
+      id,
+    ];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  }
 
   static async cancel(appointmentId: number) {
     const { rows } = await pool.query(

@@ -14,9 +14,18 @@ router.put(
   "/:id/cancel",
   authMiddleware,
   authLimiter,
-  roleMiddleware(["patient", "doctor"]),
+  roleMiddleware(["patient", "doctor", "admin"]),
   AppointmentController.cancel,
 );
+
+router.put(
+  "/:id",
+  authMiddleware,
+  authLimiter,
+  roleMiddleware(["patient", "doctor", "admin"]),
+  AppointmentController.update,
+);
+
 router.delete(
   "/:id",
   authMiddleware,
