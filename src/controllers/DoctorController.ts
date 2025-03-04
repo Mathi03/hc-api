@@ -55,14 +55,14 @@ export class DoctorController {
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { name, lastname, phone, email, specialtyId } = req.body;
+      const { name, lastname, phone, email, specialty_id } = req.body;
       const updated = await DoctorService.update(
         Number(id),
         name,
         lastname,
         phone,
         email,
-        specialtyId,
+        specialty_id,
       );
       res.status(200).json({ success: true, data: updated });
     } catch (err) {
