@@ -27,7 +27,7 @@ export class PatientDTO {
     if (!this.birthDate) errors.push("Birth date is required.");
     if (!this.gender) errors.push("Gender is required.");
     if (!this.email) errors.push("Email is required.");
-    
+
     return {
       isValid: errors.length === 0,
       errors,

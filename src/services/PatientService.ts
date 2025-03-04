@@ -1,16 +1,11 @@
 import PatientModel from "../models/PatientModel";
 import { PatientDTO } from "../dtos/PatientDTO";
+import { CreatePatientDto } from "../dtos/CreatePatientDto";
 
 class PatientService {
-  async create(patientData: any) {
-    const patientDTO = new PatientDTO(patientData);
-    const validation = patientDTO.validate();
-
-    if (!validation.isValid) {
-      throw new Error(validation.errors.join(", "));
-    }
-
-    return await PatientModel.create(patientDTO);
+  async create(patientData: CreatePatientDto) {
+    const userId = await PatientModel.createUser(patientData);
+    return await PatientModel.createPatient(patientData, userId);
   }
 
   async getAll() {

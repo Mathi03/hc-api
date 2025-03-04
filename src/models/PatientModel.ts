@@ -1,4 +1,5 @@
 import pool from "../config/db";
+import { CreatePatientDto } from "../dtos/CreatePatientDto";
 
 class PatientModel {
   async create(patient: any) {
@@ -21,9 +22,7 @@ class PatientModel {
   }
 
   async getAll() {
-    const result = await pool.query(
-      "SELECT p.* FROM patients p",
-    );
+    const result = await pool.query("SELECT p.* FROM patients p");
     return result.rows;
   }
 
@@ -59,6 +58,57 @@ class PatientModel {
       [id],
     );
     return "Patient deleted successfully";
+  }
+  async createUser(data: CreatePatientDto) {
+    try {
+      await pool.query("BEGIN");
+      const userQuery = `INSERT INTO users (name, lastname, identifier, dob, email, sex, username, password, phone, city, country, role, tyc) 
+                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'patient', $12) RETURNING id`;
+      const values = [
+        data.name,
+        data.lastname,
+        data.identifier,
+        data.dob,
+        data.email,
+        data.sex,
+        data.username.toLowerCase(),
+        data.password,
+        data.phone,
+        data.city,
+        data.country,
+        data.tyc,
+      ];
+      const userResult = await pool.query(userQuery, values);
+      const userId = userResult.rows[0].id;
+      return userId;
+    } catch (error) {
+      await pool.query("ROLLBACK");
+      throw error;
+    }
+  }
+  async createPatient(data: CreatePatientDto, userId: number) {
+    try {
+      const { rows } = await pool.query(
+        "INSERT INTO patients (name, lastname, dob, gender, address, phone, email, social_security_number, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
+        [
+          data.name,
+          data.lastname,
+          data.dob,
+          data.sex,
+          "", // address
+          data.phone,
+          data.email,
+          data.social_security_number,
+          userId,
+        ],
+      );
+      await pool.query("COMMIT");
+
+      return rows[0];
+    } catch (error) {
+      await pool.query("ROLLBACK");
+      throw error;
+    }
   }
 }
 

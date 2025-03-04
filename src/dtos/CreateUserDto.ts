@@ -15,6 +15,7 @@ export class CreateUserDto {
   tyc: boolean;
   // is_admin?: boolean;
 
+  [key: string]: any;
   constructor(data: any) {
     this.name = data.name;
     this.lastname = data.lastname;
@@ -22,12 +23,42 @@ export class CreateUserDto {
     this.dob = data.dob;
     this.email = data.email;
     this.sex = data.sex;
-    this.username = data.username.toLowerCase();
+    this.username = data.username?.toLowerCase();
     this.password = data.password;
     this.phone = data.phone;
     this.city = data.city;
     this.tyc = data.tyc;
     this.country = data.country;
+  }
+
+  validate() {
+    const errors: { [key: string]: string } = {};
+    const requiredFields: Record<string, string>[] = [
+      { field: "name", label: "nombre" },
+      { field: "lastname", label: "apellido" },
+      { field: "identifier", label: "identificador" },
+      { field: "dob", label: "fecha de nacimiento" },
+      { field: "email", label: "correo electrónico" },
+      { field: "sex", label: "sexo" },
+      { field: "username", label: "nombre de usuario" },
+      { field: "password", label: "contraseña" },
+      { field: "phone", label: "teléfono" },
+      { field: "city", label: "ciudad" },
+      { field: "country", label: "pais" },
+      { field: "tyc", label: "términos y condiciones" },
+    ];
+
+    // Validación de campos obligatorios
+    requiredFields.forEach(({ field, label }) => {
+      if (!this[field]) {
+        errors[field] = `El campo [${label}] es obligatorio.`;
+      }
+    });
+
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors,
+    };
   }
 
   validateRegistrationForm(): {
@@ -118,21 +149,11 @@ export class CreateUserDto {
       sex: this.sex,
       username: this.username.toLowerCase(),
       password: this.password!,
-      // ...(this.sponsor && { sponsor: this.sponsor }),
-      // ...(this.closer && { closer: this.closer }),
       phone: this.phone,
       city: this.city,
-      // zipcode: this.zipcode,
       tyc: this.tyc,
-      // is_admin: this.is_admin!,
-      // kitId: this.kitId,
-      // status: "active",
       created: "",
       updated: "",
-      // drop: this.drop,
-      // ia: this.ia,
-      // impact: this.impact,
-      // trading: this.trading,
       ...(this.country && { country: this.country }),
     };
   }
