@@ -5,8 +5,8 @@ export class AppointmentModel {
   static async getByUser(userId: number, role: string) {
     const query =
       role === "doctor"
-        ? "SELECT a.* FROM appointments a LEFT JOIN doctors p ON p.id = a.patient_id WHERE p.user_id = $1"
-        : "SELECT a.* FROM appointments a LEFT JOIN patients p ON p.id = a.patient_id WHERE p.user_id = $1";
+        ? "SELECT a.*, p.name AS patient_name, p.lastname AS patient_lastname, CONCAT(p.name || ' ' ||p.lastname) AS patient_fullname, d.name AS doctor_name, d.lastname AS doctor_lastname, CONCAT(d.name || ' ' ||d.lastname) AS doctor_fullname, ROUND(s.hourly_rate * (EXTRACT(EPOCH FROM (a.end_time - a.start_time)) / 3600), 2) AS appointment_price FROM appointments a LEFT JOIN patients p ON p.id = a.patient_id LEFT JOIN doctors d ON d.id = a.doctor_id LEFT JOIN specialties s ON s.id = d.specialty_id WHERE d.user_id = $1"
+        : "SELECT a.*, p.name AS patient_name, p.lastname AS patient_lastname, CONCAT(p.name || ' ' ||p.lastname) AS patient_fullname, d.name AS doctor_name, d.lastname AS doctor_lastname, CONCAT(d.name || ' ' ||d.lastname) AS doctor_fullname, ROUND(s.hourly_rate * (EXTRACT(EPOCH FROM (a.end_time - a.start_time)) / 3600), 2) AS appointment_price FROM appointments a LEFT JOIN patients p ON p.id = a.patient_id LEFT JOIN doctors d ON d.id = a.doctor_id LEFT JOIN specialties s ON s.id = d.specialty_id WHERE p.user_id = $1";
     const { rows } = await pool.query(query, [userId]);
     return rows;
   }
