@@ -3,14 +3,21 @@ import pool from "../config/db";
 import { CreateDoctorDto } from "../dtos/CreateDoctorDto";
 
 export class DoctorModel {
-  static async getAll(withDetail: boolean) {
-    const query = withDetail
-      ? `SELECT doctors.*, specialties.name AS specialty_name, specialties.label, specialties.hourly_rate 
+  static async getAll(specialtyId: number) {
+    if (specialtyId) {
+      const query = `SELECT doctors.*, specialties.name AS specialty_name, specialties.label, specialties.hourly_rate 
          FROM doctors 
-         LEFT JOIN specialties ON doctors.specialty_id = specialties.id`
-      : "SELECT * FROM doctors";
-    const { rows } = await pool.query(query);
-    return rows;
+         LEFT JOIN specialties ON doctors.specialty_id = specialties.id WHERE doctors.specialty_id = $1`;
+      const values = [specialtyId];
+      const { rows } = await pool.query(query, values);
+      return rows;
+    } else {
+      const query = `SELECT doctors.*, specialties.name AS specialty_name, specialties.label, specialties.hourly_rate 
+         FROM doctors 
+         LEFT JOIN specialties ON doctors.specialty_id = specialties.id`;
+      const { rows } = await pool.query(query);
+      return rows;
+    }
   }
 
   static async getById(id: number) {

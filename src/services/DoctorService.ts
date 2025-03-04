@@ -3,8 +3,8 @@ import { CreateDoctorDto } from "../dtos/CreateDoctorDto";
 import { DoctorModel } from "../models/DoctorModel";
 
 export class DoctorService {
-  static async getAll(withDetail: boolean, specialtyId: number) {
-    return await DoctorModel.getAll(withDetail, specialtyId);
+  static async getAll(specialtyId: number) {
+    return await DoctorModel.getAll(specialtyId);
   }
 
   static async getById(id: number) {

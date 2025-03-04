@@ -7,12 +7,8 @@ import { CreateDoctorDto } from "../dtos/CreateDoctorDto";
 export class DoctorController {
   static async getAll(req: Request, res: Response) {
     try {
-      const withDetail = req.query.withdetail === "true";
       const specialtyId = req.query.specialtyId;
-      const doctors = await DoctorService.getAll(
-        withDetail,
-        Number(specialtyId),
-      );
+      const doctors = await DoctorService.getAll(Number(specialtyId));
       res.status(200).json({ success: true, data: doctors });
     } catch (err) {
       handleError(res, err);
