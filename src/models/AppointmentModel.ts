@@ -42,7 +42,7 @@ export class AppointmentModel {
   }
 
   static async getAll() {
-    const result = await pool.query("SELECT * FROM appointments");
+    const result = await pool.query("SELECT a.*, p.name AS patient_name, p.lastname AS patient_lastname, CONCAT(p.name || ' ' ||p.lastname) AS patient_fullname, d.name AS doctor_name, d.lastname AS doctor_lastname, CONCAT(d.name || ' ' ||d.lastname) AS doctor_fullname, ROUND(s.hourly_rate * (EXTRACT(EPOCH FROM (a.end_time - a.start_time)) / 3600), 2) AS appointment_price FROM appointments a LEFT JOIN patients p ON p.id = a.patient_id LEFT JOIN doctors d ON d.id = a.doctor_id LEFT JOIN specialties s ON s.id = d.specialty_id");
     return result.rows;
   }
 
