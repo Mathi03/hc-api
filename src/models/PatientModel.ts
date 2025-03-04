@@ -21,23 +21,27 @@ class PatientModel {
   }
 
   async getAll() {
-    const result = await pool.query("SELECT * FROM patients");
+    const result = await pool.query(
+      "SELECT p.* FROM patients p",
+    );
     return result.rows;
   }
 
   async getById(id: number) {
-    const result = await pool.query("SELECT * FROM patients WHERE id = $1", [id]);
+    const result = await pool.query("SELECT * FROM patients WHERE id = $1", [
+      id,
+    ]);
     return result.rows[0];
   }
 
   async update(id: number, patient: any) {
     const query = `
-      UPDATE patients SET first_name=$1, last_name=$2, birth_date=$3, gender=$4, address=$5, phone=$6, email=$7, social_security_number=$8
+      UPDATE patients SET name=$1, lastname=$2, dob=$3, gender=$4, address=$5, phone=$6, email=$7, social_security_number=$8
       WHERE id=$9 RETURNING *`;
     const values = [
-      patient.firstName,
-      patient.lastName,
-      patient.birthDate,
+      patient.name,
+      patient.lastname,
+      patient.dob,
       patient.gender,
       patient.address,
       patient.phone,
@@ -50,8 +54,11 @@ class PatientModel {
   }
 
   async delete(id: number) {
-    await pool.query("DELETE FROM patients WHERE id = $1", [id]);
-    return { message: "Patient deleted successfully" };
+    await pool.query(
+      "UPDATE users SET status='deleted' WHERE id = (SELECT user_id FROM patients WHERE id = $1 LIMIT 1)",
+      [id],
+    );
+    return "Patient deleted successfully";
   }
 }
 

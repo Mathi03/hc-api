@@ -57,16 +57,15 @@ export class WorkingHoursController {
 
   static async getAvailableHours(req: Request, res: Response): Promise<any> {
     try {
-      const { doctorId, dayOfWeek, date } = req.query;
+      const { doctorId, date } = req.query;
       console.log("Controller", req.query);
 
-      if (!doctorId || !dayOfWeek || !date) {
+      if (!doctorId || !date) {
         throw new Error("doctorId, dayOfWeek, and date are required");
       }
 
       const availableHours = await WorkingHoursService.getAvailableHours(
         Number(doctorId),
-        String(dayOfWeek),
         String(date),
       );
       res.status(200).json({ success: true, data: availableHours });

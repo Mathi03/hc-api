@@ -28,11 +28,20 @@ export class WorkingHoursService {
     await WorkingHoursModel.delete(id);
   }
 
-  static async getAvailableHours(
-    doctorId: number,
-    dayOfWeek: string,
-    date: string,
-  ) {
+  static async getAvailableHours(doctorId: number, date: string) {
+    let dateTo = new Date(date);
+
+    let daysOfWeek = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ];
+
+    let dayOfWeek = daysOfWeek[dateTo.getDay()];
     const workingHours = await WorkingHoursModel.getWorkingHours(
       doctorId,
       dayOfWeek,
