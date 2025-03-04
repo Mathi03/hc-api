@@ -29,6 +29,14 @@ export class DoctorController {
     try {
       const createUserDto = new CreateDoctorDto(req.body);
 
+      const validationFields = createUserDto.validate();
+      console.log("fields", validationFields);
+
+      if (!validationFields.isValid) {
+        const firstErrorMessage = Object.values(validationFields.errors)[0];
+        throw new Error(firstErrorMessage);
+      }
+
       const validationResult = createUserDto.validateRegistrationForm();
 
       if (!validationResult.isValid) {
