@@ -56,17 +56,32 @@ export class AppointmentModel {
     return result.rows[0];
   }
 
-  static async update(id: number, appointment: any) {
-    const query = `
-      UPDATE appointments SET patient_id=$1, doctor_id=$2, appointment_date=$3, start_time=$4, end_time=$5 WHERE id=$6 RETURNING *`;
-    const values = [
-      appointment.patient_id,
-      appointment.doctor_id,
+  static async update(id: number, appointment: any, role: string) {
+    let query_add = "appointment_date=$1, start_time=$2, end_time=$3";
+    let values = [
       appointment.appointment_date,
       appointment.start_time,
       appointment.end_time,
-      id,
     ];
+
+    if (role === "doctor") {
+      query_add += ", patient_id=$4";
+      values.push(appointment.patient_id);
+    }
+
+    if (role === "admin") {
+      query_add += ", patient_id=$4, doctor_id=$5, status=$6";
+      values.push(
+        appointment.patient_id,
+        appointment.doctor_id,
+        appointment.status,
+      );
+    }
+
+    const query = `UPDATE appointments SET ${query_add} WHERE id=$${values.length + 1
+      } RETURNING *`;
+    values.push(id);
+
     const result = await pool.query(query, values);
     return result.rows[0];
   }
@@ -81,6 +96,6 @@ export class AppointmentModel {
 
   static async delete(appointmentId: number) {
     await pool.query("DELETE FROM appointments WHERE id = $1", [appointmentId]);
-    return { message: "Appointment deleted successfully" };
+    return "Appointment deleted successfully";
   }
 }

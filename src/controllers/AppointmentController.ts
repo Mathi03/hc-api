@@ -76,9 +76,11 @@ class AppointmentController {
 
   async update(req: Request, res: Response) {
     try {
+      const role = req.currentUser!.role;
       const updatedAppointment = await AppointmentService.update(
         Number(req.params.id),
         req.body,
+        role,
       );
       res.status(200).json({ success: true, data: updatedAppointment });
     } catch (err) {
@@ -100,7 +102,7 @@ class AppointmentController {
     try {
       const { id } = req.params;
       const message = await AppointmentService.delete(Number(id));
-      res.status(204).json({ success: true, message });
+      res.status(200).json({ success: true, message });
     } catch (err) {
       handleError(res, err);
     }

@@ -31,8 +31,8 @@ export class AppointmentService {
     return await AppointmentModel.getByUser(userId, role);
   }
 
-  static async update(id: number, appointmentData: any) {
-    return await AppointmentModel.update(id, appointmentData);
+  static async update(id: number, appointmentData: any, role: string) {
+    return await AppointmentModel.update(id, appointmentData, role);
   }
 
   static async cancel(appointmentId: number) {
@@ -40,6 +40,6 @@ export class AppointmentService {
   }
 
   static async delete(appointmentId: number) {
-    await AppointmentModel.delete(appointmentId);
+    return await AppointmentModel.delete(appointmentId);
   }
 }

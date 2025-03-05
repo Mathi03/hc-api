@@ -22,7 +22,6 @@ router.put(
   "/:id",
   authMiddleware,
   authLimiter,
-  roleMiddleware(["patient", "doctor", "admin"]),
   AppointmentController.update,
 );
 
