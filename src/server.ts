@@ -10,6 +10,7 @@ import medicalHistoryRoutes from "./routes/medicalHistory.routes";
 import paymentRoutes from "./routes/payment.routes";
 import specialtyRoutes from "./routes/specialty.routes";
 import workingHoursRoutes from "./routes/workingHours.routes";
+import userRoutes from "./routes/user.routes";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use("/api/v1/medical-history", medicalHistoryRoutes);
 app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/specialties", specialtyRoutes);
 app.use("/api/v1/working-hours", workingHoursRoutes);
+app.use("/api/v1/users", userRoutes);
 
 const PORT = process.env.API_PORT || 4000;
 app.listen(PORT, () =>

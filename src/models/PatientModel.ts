@@ -22,7 +22,9 @@ class PatientModel {
   }
 
   async getAll() {
-    const result = await pool.query("SELECT p.* FROM patients p");
+    const result = await pool.query(
+      "SELECT p.* FROM patients p LEFT JOIN users u ON u.id = p.user_id WHERE u.status NOT IN ('deleted')",
+    );
     return result.rows;
   }
 

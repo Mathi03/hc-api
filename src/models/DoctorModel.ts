@@ -6,15 +6,15 @@ export class DoctorModel {
   static async getAll(specialtyId: number) {
     if (specialtyId) {
       const query = `SELECT doctors.*, specialties.name AS specialty_name, specialties.label, specialties.hourly_rate 
-         FROM doctors 
-         LEFT JOIN specialties ON doctors.specialty_id = specialties.id WHERE doctors.specialty_id = $1`;
+         FROM doctors LEFT JOIN users u ON u.id = doctors.user_id
+         LEFT JOIN specialties ON doctors.specialty_id = specialties.id WHERE doctors.specialty_id = $1 AND u.status NOT IN ('deleted')`;
       const values = [specialtyId];
       const { rows } = await pool.query(query, values);
       return rows;
     } else {
       const query = `SELECT doctors.*, specialties.name AS specialty_name, specialties.label, specialties.hourly_rate 
-         FROM doctors 
-         LEFT JOIN specialties ON doctors.specialty_id = specialties.id`;
+         FROM doctors LEFT JOIN users u ON u.id = doctors.user_id
+         LEFT JOIN specialties ON doctors.specialty_id = specialties.id WHERE u.status NOT IN ('deleted')`;
       const { rows } = await pool.query(query);
       return rows;
     }
@@ -92,7 +92,11 @@ export class DoctorModel {
   }
 
   static async delete(id: number) {
-    await pool.query("DELETE FROM doctors WHERE id = $1", [id]);
+    // await pool.query("DELETE FROM doctors WHERE id = $1", [id]);
+    await pool.query(
+      "UPDATE users SET status='deleted' WHERE id = (SELECT user_id FROM doctors WHERE id = $1 LIMIT 1)",
+      [id],
+    );
     return "Doctor deleted successfully";
   }
 }
