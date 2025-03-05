@@ -48,6 +48,7 @@ export class DoctorModel {
       ];
       const userResult = await pool.query(userQuery, values);
       const userId = userResult.rows[0].id;
+      await pool.query("COMMIT");
       return userId;
     } catch (error) {
       await pool.query("ROLLBACK");
@@ -56,8 +57,10 @@ export class DoctorModel {
   }
   static async createDoctor(data: CreateDoctorDto, userId: number) {
     try {
+      await pool.query("BEGIN");
+
       const { rows } = await pool.query(
-        "INSERT INTO doctors (name, lastname, phone, email, user_id, specialty_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        "INSERT INTO doctors (name, lastname, phone, email, user_id, specialty_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
         [
           data.name,
           data.lastname,
@@ -67,6 +70,24 @@ export class DoctorModel {
           data.specialty_id,
         ],
       );
+      const doctorId = rows[0].id;
+
+      const workDays = ["monday", "tuesday", "wednesday", "thursday", "friday"];
+      const workHours = workDays.map((day) => [
+        doctorId,
+        day,
+        "09:00",
+        "18:00",
+      ]);
+
+      const insertWorkHoursQuery = `
+        INSERT INTO working_hours (doctor_id, day_of_week, start_time, end_time) 
+        VALUES ${workHours.map(() => "($1, $2, $3, $4)").join(", ")}
+      `;
+
+      const values = workHours.flat();
+      await pool.query(insertWorkHoursQuery, values);
+
       await pool.query("COMMIT");
 
       return rows[0];
