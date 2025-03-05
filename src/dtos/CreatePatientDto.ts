@@ -3,10 +3,15 @@ import { User } from "../models/userModel";
 
 export class CreatePatientDto extends CreateUserDto {
   social_security_number: string;
+  address: string;
 
   constructor(data: any) {
     super(data);
+    if (!data.address) {
+      throw new Error("El campo address es obligatorio.");
+    }
     this.social_security_number = data.social_security_number;
+    this.address = data.address;
   }
 
   validateRegistrationForm(): {
