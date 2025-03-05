@@ -45,7 +45,7 @@ class PatientModel {
       patient.address,
       patient.phone,
       patient.email,
-      patient.socialSecurityNumber,
+      patient.social_security_number,
       id,
     ];
     const result = await pool.query(query, values);
@@ -95,7 +95,7 @@ class PatientModel {
           data.lastname,
           data.dob,
           data.sex,
-          "", // address
+          data.address,
           data.phone,
           data.email,
           data.social_security_number,

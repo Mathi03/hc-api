@@ -7,7 +7,7 @@ import patientRoutes from "./routes/patient.routes";
 import doctorRoutes from "./routes/doctor.routes";
 import appointmentRoutes from "./routes/appointment.routes";
 import medicalHistoryRoutes from "./routes/medicalHistory.routes";
-import billingRoutes from "./routes/billing.routes";
+import paymentRoutes from "./routes/payment.routes";
 import specialtyRoutes from "./routes/specialty.routes";
 import workingHoursRoutes from "./routes/workingHours.routes";
 
@@ -23,7 +23,7 @@ app.use("/api/v1/patients", patientRoutes);
 app.use("/api/v1/doctors", doctorRoutes);
 app.use("/api/v1/appointments", appointmentRoutes);
 app.use("/api/v1/medical-history", medicalHistoryRoutes);
-app.use("/api/v1/billing", billingRoutes);
+app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/specialties", specialtyRoutes);
 app.use("/api/v1/working-hours", workingHoursRoutes);
 
